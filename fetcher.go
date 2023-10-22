@@ -81,6 +81,7 @@ type Resp struct {
 					Images []ImagePreview `json:"images"`
 				} `json:"preview"`
 				MediaMetadata map[string]ImageGallery `json:"media_metadata"`
+				Over18 bool `json:"over_18"`
 			} `json:"data"`
 		} `json:"children"`
 	} `json:"data"`
@@ -168,7 +169,7 @@ func fetchPage(sub, sort, after, before string) (*CResp, error) {
 		}
 		base := ImageRow{
 			PostID:    p.Data.Name,
-			IsNSFW:    p.Data.Thumbnail == "nsfw",
+			IsNSFW:    p.Data.Over18 || p.Data.Thumbnail == "nsfw",
 			Subreddit: subCfg.Alias,
 			TrueSub:   sub,
 			CreatedAt: int(math.Floor(p.Data.CreatedAt)),
