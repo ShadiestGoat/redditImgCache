@@ -226,7 +226,14 @@ func InitialData() {
 		stopJobs = append(stopJobs, closer)
 
 		go func(d int, closer chan bool, h time.Duration, sub string) {
-			time.Sleep(time.Duration(d) * time.Minute)
+			timerTillActivate := time.NewTimer(time.Duration(d) * time.Minute)
+			
+			select {
+			case <- closer:
+				return
+			case <- timerTillActivate.C:
+			}
+
 			t := time.NewTicker(h * time.Hour)
 
 			for {
