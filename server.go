@@ -67,11 +67,13 @@ func CreateMux() *chi.Mux {
 		}
 
 		nsfwFilter := 0
+		sqlNSFW := "0"
 
 		if nsfwQueryRaw := r.URL.Query().Get("nsfw"); nsfwQueryRaw != "" {
 			p, err := strconv.Atoi(nsfwQueryRaw)
 			if err == nil && p >= -1 && p <= 1 {
 				nsfwFilter = p
+				sqlNSFW = nsfwQueryRaw
 			}
 		}
 
@@ -100,6 +102,8 @@ func CreateMux() *chi.Mux {
 			w.Write([]byte(`{"error": "DB Error"}`))
 			return
 		}
+
+		go db.Exec(`INSERT INTO req_stats(sub, nsfw) VALUES ($1, $2) ON CONFLICT (sub, nsfw) DO UPDATE SET requests = req_stats.requests + 1;`, sub, sqlNSFW)
 
 		json.NewEncoder(w).Encode(img)
 	})
