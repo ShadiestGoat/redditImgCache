@@ -1,0 +1,42 @@
+# This is an example configuration. All the values here, except the sub reddits, are also the default values.
+
+# Server settings 
+server:
+  # what port to run on
+  port: 3000 
+  # if false, the /subs endpoint will not exist (ie. clients can't know which subreddits are supported)
+  advertizeSubreddit: false
+  # how far to space each sub reddit's hydration apart, in minutes. 
+  # Eg. here, 1st subreddit will at t=0, 2nd will be hydrated 10 minutes after 1st subreddit is done, 3d 10 minutes after that, etc
+  refreshPad: 10
+  # The db url, in this format. Note - this has to be PostgreSQL!
+  dbURL: postgresql://username:password@ip:port/db_name
+
+# This section defines other logging locations, except stdout.
+# If that section is present & valid, then it will log debug & errors into that destination
+logger:
+  # Discord Webhook logging
+  discord:
+    # Any prefix you want to attach to each log. Commonly used for @mentioning roles or users (user <@id> syntax)
+    prefix:
+    # The full url of the webhook
+    webhook:
+  # Logging to a local file
+  file:
+    # The name of the file. Use logs/logFile.log to create a file in logs called logFile.log
+    name: log
+    # The max amount of files that are stored. Older files get replaced with newer ones.
+    maxFiles: 1
+    # If true, then file 0 will be the latest file (irrelevant if maxFiles is 1)
+    newestAt0: true
+
+# The subreddits that this server will cache 
+subs:
+  # Subreddit names
+  pics:
+    # How often (in hours) you want this subreddit polled for new posts
+    hydrate: 24
+    # If set to false, nsfw posts will not be saved
+    saveNSFW: true
+    # This is the name that images from this subreddit will be saved as. The default is the name of the subreddit
+    alias: pics
