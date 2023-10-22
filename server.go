@@ -70,7 +70,11 @@ func CreateMux() *chi.Mux {
 			&img.Image, &img.IsNSFW, &img.Width, &img.Height,
 		)
 
-		if log.ErrorIfErr(err, "fetching random img") {
+		if err != nil {
+			if !db.NoRows(err) {
+				log.Error("Err while fetching random img: %v", err)
+			}
+
 			w.WriteHeader(501)
 			w.Write([]byte(`{"error": "DB Error"}`))
 			return
