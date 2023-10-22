@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"html"
 	"math"
 	"net/http"
 	"time"
@@ -95,7 +96,7 @@ type CResp struct {
 }
 
 func imgRow(base ImageRow, img RedditImage) ImageRow {
-	base.Image = img.URL()
+	base.Image = html.UnescapeString(img.URL())
 	base.Width = img.Width()
 	base.Height = img.Height()
 
