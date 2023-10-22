@@ -5,6 +5,7 @@ var setup = [][2]string{
 	{sql_TABLE_IMAGES, "creating the img cache table"},
 	{sql_INDEX_SUB,    "creating the sub index"},
 	{sql_INDEX_NSFW,   "creating the nsfw index"},
+	{sql_REQ_STATS,   "creating the stats table"},
 }
 
 const sql_TABLE_IMAGES = `CREATE TABLE IF NOT EXISTS images (
