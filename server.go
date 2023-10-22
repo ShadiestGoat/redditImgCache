@@ -20,6 +20,8 @@ func CreateMux() *chi.Mux {
 
 	if conf.Server.ExposeSubs {
 		r.Get("/subs", func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "application/json")
+
 			resp := RespSub{
 				NSFW: map[string]int{},
 				SFW:  map[string]int{},
@@ -58,6 +60,8 @@ func CreateMux() *chi.Mux {
 	}
 
 	r.Get(`/r/{sub}`, func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+
 		sub := chi.URLParam(r, "sub")
 
 		if !Aliases[sub] {
