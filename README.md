@@ -25,8 +25,16 @@ Now you can do:
 
 ### GET /subs
 
-Returns a map of aliased subreddit name -> n of posts cached
 Also could return a `{"error": "DB Error"}`. Create an issue in this case - this shouldn't happen, but theoretically could.
+
+Returns:
+```ts
+type resp = {
+    // These are a map of alias -> the number of images. The number is always an integer.
+    "nsfw": Record<string, number>,
+    "sfw": Record<string, number>,
+}
+```
 
 ### GET /r/{sub}
 
@@ -39,12 +47,13 @@ Where `{sub}` is an aliased name of a subreddit. You can include a query paramet
 | 1 | Must return an nsfw post. |
 
 Returns:
-```json
-{
+```ts
+interface Resp {
     "img": string,
-    "nsfw": bool,
-    "width": int,
-    "height": int,
+    "nsfw": boolean,
+    // Note: these 2 are always integers
+    "width": number,
+    "height": number,
 }
 ```
 

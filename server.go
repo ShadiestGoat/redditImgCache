@@ -10,14 +10,22 @@ import (
 	"github.com/shadiestgoat/redditImgCache/db"
 )
 
+type RespSub struct {
+	NSFW map[string]int `json:"nsfw"`
+	SFW  map[string]int `json:"sfw"`
+}
+
 func CreateMux() *chi.Mux {
 	r := chi.NewRouter()
 
 	if conf.Server.ExposeSubs {
 		r.Get("/subs", func(w http.ResponseWriter, r *http.Request) {
-			subs := map[string]int{}
+			resp := RespSub{
+				NSFW: map[string]int{},
+				SFW:  map[string]int{},
+			}
 
-			rows, err := db.Query("SELECT sub, COUNT(*) FROM images GROUP BY sub")
+			rows, err := db.Query("SELECT sub, nsfw, COUNT(*) FROM images GROUP BY sub, nsfw")
 			if log.ErrorIfErr(err, "querying for sub stats") {
 				w.WriteHeader(501)
 				w.Write([]byte(`{"error": "DB Error"}`))
@@ -25,9 +33,9 @@ func CreateMux() *chi.Mux {
 			}
 
 			for rows.Next() {
-				s, c := "", 0
+				s, n, c := "", false, 0
 
-				err = rows.Scan(&s, &c)
+				err = rows.Scan(&s, &n, &c)
 				if log.ErrorIfErr(err, "scanning sub & count") {
 					w.WriteHeader(501)
 					w.Write([]byte(`{"error": "DB Error"}`))
@@ -36,10 +44,16 @@ func CreateMux() *chi.Mux {
 					return
 				}
 
+				subs := resp.SFW
+
+				if n {
+					subs = resp.NSFW
+				}
+
 				subs[s] = c
 			}
 
-			json.NewEncoder(w).Encode(subs)
+			json.NewEncoder(w).Encode(resp)
 		})
 	}
 
