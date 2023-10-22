@@ -22,7 +22,7 @@ const sql_TABLE_IMAGES = `CREATE TABLE IF NOT EXISTS images (
 const sql_REQ_STATS = `CREATE TABLE IF NOT EXISTS req_stats (
 	sub TEXT,
 	nsfw VARCHAR(2),
-	requests INTEGER DEFAULT 0,
+	requests INTEGER DEFAULT 1,
 
 	UNIQUE(sub, nsfw)
 )`
