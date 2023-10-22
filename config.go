@@ -58,7 +58,7 @@ func init() {
 
 func defaultUInt(v *int, name string, defVal int) {
 	if *v <= 0 {
-		log.Warn("%v invalid - setting default value of %v", name, defVal)
+		log.PrintWarn("%v invalid - setting default value of %v", name, defVal)
 		*v = defVal
 	}
 }
@@ -102,7 +102,7 @@ func init() {
 
 	for k, v := range conf.Subs {
 		if v.Hydrate <= 0 {
-			log.Warn("Subreddit '%v' doesn't have a valid hydration time - setting default (24h)", k)
+			log.PrintWarn("Subreddit '%v' doesn't have a valid hydration time - setting default (24h)", k)
 			v.Hydrate = 24
 		}
 		if v.SaveNSFW == nil {
