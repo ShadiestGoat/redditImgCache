@@ -63,6 +63,8 @@ func defaultUInt(v *int, name string, defVal int) {
 	}
 }
 
+var Aliases = map[string]bool{}
+
 func init() {
 	loggers := []log.LogCB{
 		log.NewLoggerPrint(),
@@ -110,6 +112,8 @@ func init() {
 		if v.Alias == "" {
 			v.Alias = k
 		}
+
+		Aliases[v.Alias] = true
 
 		conf.Subs[k] = v
 	}

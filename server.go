@@ -59,6 +59,13 @@ func CreateMux() *chi.Mux {
 
 	r.Get(`/r/{sub}`, func(w http.ResponseWriter, r *http.Request) {
 		sub := chi.URLParam(r, "sub")
+
+		if !Aliases[sub] {
+			w.WriteHeader(404)
+			w.Write([]byte(`{"error": "Not Supported <3"}`))
+			return
+		}
+
 		nsfwFilter := 0
 
 		if nsfwQueryRaw := r.URL.Query().Get("nsfw"); nsfwQueryRaw != "" {
