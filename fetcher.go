@@ -123,6 +123,7 @@ func fetchPage(sub, sort, after, before string) (*CResp, error) {
 
 	for {
 		var err error
+		log.Debug("Fetching '%v'", link)
 		resp, err = http.DefaultClient.Do(req)
 
 		if log.ErrorIfErr(err, "fetching '%v'", link) || resp.StatusCode != 200 {
@@ -199,7 +200,7 @@ func fetchPage(sub, sort, after, before string) (*CResp, error) {
 		output.Before = *o.Data.Before
 	}
 
-	log.Debug("Fetching '%v'", link)
+	log.Debug("Fetched '%v'", link)
 
 	return output, nil
 }
