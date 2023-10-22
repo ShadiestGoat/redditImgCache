@@ -15,6 +15,7 @@ type Config struct {
 		Port int `yaml:"port"`
 		ExposeSubs bool `yaml:"advertizeSubreddit"`
 		DB string `yaml:"dbURL"`
+		RefreshPad int `yaml:"refreshPad"`
 	} `yaml:"server"`
 	Logger struct {
 		Discord *struct {

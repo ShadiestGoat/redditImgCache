@@ -224,7 +224,7 @@ func InitialData() {
 		closer := make(chan bool)
 		stopJobs = append(stopJobs, closer)
 
-		go func(closer chan bool, h time.Duration, sub string) {
+		go func(d int, closer chan bool, h time.Duration, sub string) {
 			time.Sleep(time.Duration(d) * time.Minute)
 			t := time.NewTicker(h * time.Hour)
 
@@ -236,7 +236,9 @@ func InitialData() {
 					return
 				}
 			}
-		}(closer, time.Duration(c.Hydrate), sub)
+		}(d, closer, time.Duration(c.Hydrate), sub)
+
+		d += conf.Server.RefreshPad
 	}
 }
 
