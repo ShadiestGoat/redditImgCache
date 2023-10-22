@@ -32,6 +32,26 @@ func main() {
 	InitialData()
 	log.Debug("Loaded data")
 
+	currentSubreddits := []string{}
+
+	rows, err := db.Query(`SELECT DISTINCT true_sub FROM images`)
+	log.FatalIfErr(err, "getting current subreddits")
+
+	for rows.Next() {
+		s := ""
+		err := rows.Scan(&s)
+		log.FatalIfErr(err, "scanning while trying to get currents subs")
+	
+		currentSubreddits = append(currentSubreddits, s)
+	}
+
+	for _, curSub := range currentSubreddits {
+		if _, ok := conf.Subs[curSub]; !ok {
+			log.Debug("Sub reddit r/%v removed from config, removing from db...", curSub)
+			db.Exec(`DELETE FROM images WHERE true_sub = $1`, curSub)
+		}
+	}
+
 	r := CreateMux()
 
 	s := &http.Server{
