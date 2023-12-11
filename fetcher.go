@@ -138,9 +138,13 @@ func fetchPage(sub, sort, after, before string) (*CResp, error) {
 				return nil, err
 			}
 
-			if resp != nil && resp.StatusCode == 429 {
-				log.Debug("Rate limited")
-				time.Sleep(2 * time.Minute)
+			if resp != nil {
+				if resp.StatusCode == 429 {
+					log.Debug("Rate limited")
+					time.Sleep(2 * time.Minute)
+				} else {
+					log.Warn("Unknown status code: %v", resp.StatusCode)
+				}
 			}
 
 			continue
@@ -295,7 +299,7 @@ func fetchSinceLast(sub string) {
 
 	for {
 		resp, err := fetchPage(sub, "new", "", before)
-		if log.ErrorIfErr(err, "fetching initial data (r/%v) (before: '%v')", sub, before) {
+		if log.ErrorIfErr(err, "fetching data (r/%v) (before: '%v')", sub, before) {
 			return
 		}
 
