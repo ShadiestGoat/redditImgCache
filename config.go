@@ -112,7 +112,13 @@ func init() {
 	}
 
 	if conf.HttpStuff.Credentials != "" {
+		if !strings.Contains(conf.HttpStuff.Credentials, ":") {
+			log.Fatal("Your reddit credentials need to be in the form of client_id:client_secret!")
+			return
+		}
+
 		conf.HttpStuff.Credentials = "Basic " + base64.StdEncoding.EncodeToString([]byte(conf.HttpStuff.Credentials))
+		log.Debug("Credential detected & loaded!")
 	}
 
 	for k, v := range conf.Subs {
