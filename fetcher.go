@@ -117,7 +117,10 @@ func fetchPage(sub, sort, after, before string) (*CResp, error) {
 	}
 
 	req, _ := http.NewRequest("GET", link, nil)
-	req.Header.Set("User-Agent", "Mozilla/5.0 (X11; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/118.0")
+	req.Header.Set("User-Agent", conf.HttpStuff.UserAgent)
+	if conf.HttpStuff.Credentials != "" {
+		req.Header.Set("Authorization", conf.HttpStuff.Credentials)
+	}
 
 	var resp *http.Response
 	retries := 0
@@ -299,7 +302,7 @@ func fetchSinceLast(sub string) {
 
 	for {
 		resp, err := fetchPage(sub, "new", "", before)
-		if log.ErrorIfErr(err, "fetching data (r/%v) (before: '%v')", sub, before) {
+		if log.ErrorIfErr(err, "fetching since last post (r/%v) (before: '%v')", sub, before) {
 			return
 		}
 

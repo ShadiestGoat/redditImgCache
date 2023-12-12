@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"fmt"
 	"net/url"
 	"os"
@@ -17,6 +18,10 @@ type Config struct {
 		DB string `yaml:"dbURL"`
 		RefreshPad int `yaml:"refreshPad"`
 	} `yaml:"server"`
+	HttpStuff struct {
+		UserAgent string `yaml:"userAgent"`
+		Credentials string `yaml:"credentials"`
+	} `yaml:"httpStuff"`
 	Logger struct {
 		Discord *struct {
 			Prefix string `yaml:"prefix"`
@@ -99,6 +104,16 @@ func init() {
 	log.Init(loggers...)
 
 	defaultUInt(&conf.Server.Port, "Port", 3000)
+
+	conf.HttpStuff.UserAgent = strings.TrimSpace(conf.HttpStuff.UserAgent)
+
+	if conf.HttpStuff.UserAgent == "" {
+		conf.HttpStuff.UserAgent = "Mozilla/5.0 (X11; Linux x86_64; rv:120.0) Gecko/20100101 Firefox/120.0"
+	}
+
+	if conf.HttpStuff.Credentials != "" {
+		conf.HttpStuff.Credentials = "Basic " + base64.StdEncoding.EncodeToString([]byte(conf.HttpStuff.Credentials))
+	}
 
 	for k, v := range conf.Subs {
 		if v.Hydrate <= 0 {

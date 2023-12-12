@@ -12,6 +12,14 @@ server:
   # The db url, in this format. Note - this has to be PostgreSQL!
   dbURL: postgresql://username:password@ip:port/db_name
 
+# Optional settings to prevent reddit from killing your server
+httpStuff:
+  # If you want to set a custom user agent, you can do so here
+  userAgent: Mozilla/5.0 (X11; Linux x86_64; rv:120.0) Gecko/20100101 Firefox/120.0
+  # Optional BUT do note that if you are seeing 403s, then you do need this.
+  # To create a bot, use this link: https://old.reddit.com/prefs/apps/ - then, create a personal script
+  credentials: client_id:client_secret
+
 # This section defines other logging locations, except stdout.
 # If that section is present & valid, then it will log debug & errors into that destination
 logger:
