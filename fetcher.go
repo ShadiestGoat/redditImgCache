@@ -81,7 +81,7 @@ type Resp struct {
 					Images []ImagePreview `json:"images"`
 				} `json:"preview"`
 				MediaMetadata map[string]ImageGallery `json:"media_metadata"`
-				Over18 bool `json:"over_18"`
+				Over18        bool                    `json:"over_18"`
 			} `json:"data"`
 		} `json:"children"`
 	} `json:"data"`
@@ -102,6 +102,19 @@ func imgRow(base ImageRow, img RedditImage) ImageRow {
 	base.Height = img.Height()
 
 	return base
+}
+
+var (
+	ErrRateLimit = fmt.Errorf("Rate Limit")
+	Err403       = fmt.Errorf("403s - time to introduce/change credentials!")
+)
+
+type ErrUnknownStatus struct {
+	Status int
+}
+
+func (e ErrUnknownStatus) Error() string {
+	return fmt.Sprintf("Unknown Status: %v", e.Status)
 }
 
 func fetchPage(sub, sort, after, before string) (*CResp, error) {
@@ -127,27 +140,35 @@ func fetchPage(sub, sort, after, before string) (*CResp, error) {
 
 	for {
 		var err error
+
 		log.Debug("Fetching '%v'", link)
 		resp, err = http.DefaultClient.Do(req)
 
 		if log.ErrorIfErr(err, "fetching '%v'", link) || resp.StatusCode != 200 {
 			retries++
 
+			if resp != nil {
+				switch resp.StatusCode {
+				case 429:
+					log.Debug("Rate limited")
+					time.Sleep(2 * time.Minute)
+					err = ErrRateLimit
+				case 403:
+					log.Warn("NOOO 403!!")
+					err = Err403
+				default:
+					err = ErrUnknownStatus{
+						Status: resp.StatusCode,
+					}
+				}
+			}
+
 			if retries > 5 {
 				if err == nil {
-					err = fmt.Errorf("Rate limit")
+					err = fmt.Errorf("Unknown Err?")
 				}
 
 				return nil, err
-			}
-
-			if resp != nil {
-				if resp.StatusCode == 429 {
-					log.Debug("Rate limited")
-					time.Sleep(2 * time.Minute)
-				} else {
-					log.Warn("Unknown status code: %v", resp.StatusCode)
-				}
 			}
 
 			continue
@@ -236,11 +257,11 @@ func InitialData() {
 
 		go func(d int, closer chan bool, h time.Duration, sub string) {
 			timerTillActivate := time.NewTimer(time.Duration(d) * time.Minute)
-			
+
 			select {
-			case <- closer:
+			case <-closer:
 				return
-			case <- timerTillActivate.C:
+			case <-timerTillActivate.C:
 			}
 
 			t := time.NewTicker(h * time.Hour)
