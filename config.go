@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/url"
 	"os"
+	"regexp"
 	"strings"
 
 	"github.com/shadiestgoat/log"
@@ -13,33 +14,54 @@ import (
 
 type Config struct {
 	Server struct {
-		Port int `yaml:"port"`
-		ExposeSubs bool `yaml:"advertizeSubreddit"`
-		DB string `yaml:"dbURL"`
-		RefreshPad int `yaml:"refreshPad"`
+		Port       int    `yaml:"port"`
+		ExposeSubs bool   `yaml:"advertizeSubreddit"`
+		DB         string `yaml:"dbURL"`
+		RefreshPad int    `yaml:"refreshPad"`
 	} `yaml:"server"`
 	HttpStuff struct {
-		UserAgent string `yaml:"userAgent"`
+		UserAgent   string `yaml:"userAgent"`
 		Credentials string `yaml:"credentials"`
 	} `yaml:"httpStuff"`
 	Logger struct {
 		Discord *struct {
-			Prefix string `yaml:"prefix"`
+			Prefix  string `yaml:"prefix"`
 			Webhook string `yaml:"webhook"`
 		} `yaml:"discord"`
 		File *struct {
-			Name string `yaml:"name"`
-			MaxFiles int `yaml:"maxFiles"`
-			NewestAt0 bool `yaml:"newestAt0"`
+			Name      string `yaml:"name"`
+			MaxFiles  int    `yaml:"maxFiles"`
+			NewestAt0 bool   `yaml:"newestAt0"`
 		} `yaml:"file"`
 	} `yaml:"logger"`
 	Subs map[string]ConfigSub `yaml:"subs"`
 }
 
 type ConfigSub struct {
-	Hydrate int `yaml:"hydrate"`
-	SaveNSFW *bool `yaml:"saveNSFW"`
-	Alias string `yaml:"alias"`
+	Hydrate  int    `yaml:"hydrate"`
+	SaveNSFW *bool  `yaml:"saveNSFW"`
+	Alias    string `yaml:"alias"`
+}
+
+var ReEnvVar = regexp.MustCompile(`\$([A-Z_]*[A-Z])`)
+
+func LoadEnvConfig(s *string) {
+	matches := ReEnvVar.FindAllStringSubmatch(*s, -1)
+
+	replacers := []string{}
+
+	for _, m := range matches {
+		env_var := m[1]
+		v := os.Getenv(env_var)
+
+		if v == "" {
+			continue
+		}
+
+		replacers = append(replacers, m[0], v)
+	}
+
+	*s = strings.NewReplacer(replacers...).Replace(*s)
 }
 
 var conf = &Config{}
@@ -49,7 +71,7 @@ func panicBeforeLog(msg string) {
 	log.Fatal(msg)
 }
 
-func init() {
+func ReadConfig() {
 	b, err := os.ReadFile("config.yaml")
 	if err != nil {
 		panicBeforeLog(fmt.Sprintf("Couldn't open config file: %v", err))
@@ -70,12 +92,16 @@ func defaultUInt(v *int, name string, defVal int) {
 
 var Aliases = map[string]bool{}
 
-func init() {
+func ValidateConfig() {
 	loggers := []log.LogCB{
 		log.NewLoggerPrint(),
 	}
 
+	LoadEnvConfig(&conf.Server.DB)
+
 	if conf.Logger.Discord != nil && conf.Logger.Discord.Webhook != "" {
+		LoadEnvConfig(&conf.Logger.Discord.Webhook)
+
 		_, err := url.Parse(conf.Logger.Discord.Webhook)
 		if err != nil {
 			panicBeforeLog("Could not load discord parser: invalid webhook url!")
@@ -113,7 +139,9 @@ func init() {
 
 	if conf.HttpStuff.Credentials != "" {
 		if !strings.Contains(conf.HttpStuff.Credentials, ":") {
-			log.Fatal("Your reddit credentials need to be in the form of client_id:client_secret!")
+			LoadEnvConfig(&conf.HttpStuff.Credentials)
+		
+			log.Fatal("Your reddit credentials need to be in the form of 'client_id:client_secret'!")
 			return
 		}
 
@@ -138,4 +166,9 @@ func init() {
 
 		conf.Subs[k] = v
 	}
+}
+
+func LoadFullConfig() {
+	ReadConfig()
+	ValidateConfig()	
 }

@@ -22,6 +22,8 @@ func main() {
 	//
 	// PROFIT!!!
 
+	LoadFullConfig()
+
 	if len(conf.Subs) == 0 {
 		log.Fatal("No subreddits defined!")
 	}

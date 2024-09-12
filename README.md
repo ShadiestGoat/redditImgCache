@@ -14,6 +14,7 @@ This is a server for caching subreddits image posts.
 ## Config
 
 The config is stored in a `config.yaml` file. Check `config.example.yaml` for defaults & documentation.
+Some config values store some sort of secrets. Those values support env variables - `$ENV_VAR_NAME`. These do not have to be the entire value either - eg. `postgresql://$DB_USER:$DB_PASSWORD@$DB_HOST/$DB_NAME`. Note that db var detection only works for uppercase letters & underscores, nothing else. If a db variable is not present, it will fallback onto the db variable string.
 
 ## How to use
 

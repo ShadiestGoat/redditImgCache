@@ -10,6 +10,7 @@ server:
   # Eg. here, 1st subreddit will at t=0, 2nd will be hydrated 10 minutes after 1st subreddit is done, 3d 10 minutes after that, etc
   refreshPad: 10
   # The db url, in this format. Note - this has to be PostgreSQL!
+  # Supports env variables
   dbURL: postgresql://username:password@ip:port/db_name
 
 # Optional settings to prevent reddit from killing your server
@@ -18,6 +19,7 @@ httpStuff:
   userAgent: Mozilla/5.0 (X11; Linux x86_64; rv:120.0) Gecko/20100101 Firefox/120.0
   # Optional BUT do note that if you are seeing 403s, then you do need this.
   # To create a bot, use this link: https://old.reddit.com/prefs/apps/ - then, create a personal script
+  # Supports env variables
   credentials: client_id:client_secret
 
 # This section defines other logging locations, except stdout.
@@ -28,6 +30,7 @@ logger:
     # Any prefix you want to attach to each log. Commonly used for @mentioning roles or users (user <@id> syntax)
     prefix:
     # The full url of the webhook
+    # Supports env variables
     webhook:
   # Logging to a local file
   file:
